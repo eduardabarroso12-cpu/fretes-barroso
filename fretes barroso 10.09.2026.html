@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#123d79">
+<title>Barroso | Controle de Fretes</title>
+<style>
+  :root{
+    --blue:#143f7c; --blue2:#0d2e5e; --blue3:#eaf2ff; --bg:#f4f7fb;
+    --text:#162238; --muted:#6b7688; --line:#dde5ef; --white:#fff;
+    --danger:#b42318; --success:#18794e; --shadow:0 12px 35px rgba(13,46,94,.09);
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  html{background:var(--bg)}
+  body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+  button,input,select,textarea{font:inherit}
+  button{touch-action:manipulation}
+  .app{max-width:1180px;margin:auto;padding:16px 16px 44px}
+  .header{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 20px;border-radius:22px;background:linear-gradient(135deg,var(--blue2),var(--blue));color:#fff;box-shadow:var(--shadow);margin-bottom:14px}
+  .brand{display:flex;align-items:center;gap:12px;min-width:0}
+  .truckLogo{width:58px;height:46px;display:grid;place-items:center;border-radius:14px;background:rgba(255,255,255,.11);flex:none}
+  .truckLogo svg{width:46px;height:31px;fill:#fff}
+  .brandTitle{font-size:25px;line-height:1;font-weight:950;letter-spacing:.4px;margin:0}
+  .brandSub{font-size:11px;margin-top:6px;letter-spacing:1.25px;opacity:.88}
+  .headerRight{display:flex;align-items:center;gap:10px}
+  .periodTop{text-align:right;font-size:11px;opacity:.85}
+  .periodTop strong{display:block;margin-top:3px;font-size:15px;color:#fff;opacity:1}
+  .gear{border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:white;width:40px;height:40px;border-radius:12px;cursor:pointer;font-size:18px}
+
+  .tabs{display:flex;gap:7px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:6px;box-shadow:var(--shadow);position:sticky;top:6px;z-index:30;margin-bottom:16px}
+  .tab{flex:1;border:0;background:transparent;color:var(--muted);font-weight:850;padding:12px;border-radius:11px;cursor:pointer}
+  .tab.active{background:var(--blue);color:#fff}
+  .view{display:none}.view.active{display:block}
+  .grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:19px}
+  .card h2{margin:0 0 5px;font-size:18px;color:var(--blue2)}
+  .helper{font-size:12px;color:var(--muted);line-height:1.45;margin:0 0 16px}
+  .field{margin-bottom:14px}
+  label{display:block;font-size:11px;font-weight:900;letter-spacing:.25px;color:#4d5a70;margin-bottom:7px}
+  input,select,textarea{width:100%;border:1.5px solid var(--line);background:#fff;color:var(--text);border-radius:12px;padding:13px 14px;outline:none;transition:.15s}
+  input:focus,select:focus,textarea:focus{border-color:#6f98d1;box-shadow:0 0 0 3px rgba(20,63,124,.08)}
+  textarea{min-height:72px;resize:vertical}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .vehiclePicker{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .vehicleBtn{border:1.5px solid var(--line);background:#fff;color:#48566e;border-radius:12px;padding:13px 8px;font-weight:950;cursor:pointer}
+  .vehicleBtn.active{border-color:var(--blue);background:var(--blue3);color:var(--blue)}
+  .typePicker{display:flex;gap:7px;flex-wrap:wrap}
+  .typeBtn{border:1px solid var(--line);background:#fff;color:#536078;padding:9px 11px;border-radius:999px;font-size:11px;font-weight:850;cursor:pointer}
+  .typeBtn.active{background:var(--blue);border-color:var(--blue);color:#fff}
+  .btnPrimary{width:100%;border:0;background:var(--blue);color:#fff;border-radius:13px;padding:14px 16px;font-weight:950;cursor:pointer;box-shadow:0 7px 17px rgba(20,63,124,.22)}
+  .btnPrimary:active{transform:translateY(1px)}
+  .btnGhost{border:1px solid var(--line);background:#fff;color:var(--blue);border-radius:10px;padding:9px 11px;font-weight:850;cursor:pointer}
+  .btnDanger{color:var(--danger)}
+  .btnSoft{border:0;background:#edf3fb;color:var(--blue);border-radius:10px;padding:9px 11px;font-weight:850;cursor:pointer}
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:15px}
+  .kpi{background:#fff;border:1px solid var(--line);border-radius:15px;padding:15px;box-shadow:var(--shadow)}
+  .kpi span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.45px;color:var(--muted);font-weight:900}
+  .kpi strong{display:block;font-size:21px;color:var(--blue2);margin-top:6px}
+  .kpi.total{background:var(--blue);border-color:var(--blue)}
+  .kpi.total span,.kpi.total strong{color:#fff}
+  .recentItem{padding:11px 0;border-bottom:1px solid #edf1f6;display:flex;justify-content:space-between;gap:12px}
+  .recentItem:last-child{border-bottom:0}
+  .recentDesc{font-size:13px;font-weight:850;line-height:1.3}
+  .recentMeta{font-size:10.5px;color:var(--muted);margin-top:5px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .recentValue{white-space:nowrap;font-weight:950;color:var(--blue2);font-size:14px}
+  .tag{display:inline-block;background:#eef3fb;color:var(--blue);font-size:9.5px;font-weight:900;padding:4px 7px;border-radius:999px}
+  .empty{text-align:center;color:var(--muted);font-size:12px;padding:24px 10px}
+
+  .filterCard{margin-bottom:16px}
+  .filters{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
+  .filters .field{margin:0;min-width:210px;flex:1}
+  .qWrap{min-width:260px}
+  .qBtns{display:flex;gap:7px}
+  .qBtn{flex:1;border:1px solid var(--line);background:#fff;color:#536078;border-radius:11px;padding:12px 10px;font-weight:900;cursor:pointer}
+  .qBtn.active{background:var(--blue);border-color:var(--blue);color:#fff}
+  .reportActions{display:flex;gap:8px;align-items:center;margin-left:auto}
+  .truckColumns{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .truckHead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px}
+  .truckHead h3{margin:0;color:var(--blue2);font-size:17px}
+  .truckTotal{font-size:13px;color:var(--blue);font-weight:950}
+  .tableWrap{overflow:auto;border:1px solid var(--line);border-radius:12px}
+  table{border-collapse:collapse;width:100%;min-width:590px}
+  th{background:var(--blue);color:#fff;font-size:10px;letter-spacing:.15px;text-align:left;padding:10px 8px;position:sticky;top:0}
+  td{font-size:11.5px;padding:9px 8px;border-bottom:1px solid #edf1f6;vertical-align:middle}
+  tr:last-child td{border-bottom:0}
+  .money{text-align:right;font-weight:950;color:var(--blue2);white-space:nowrap}
+  .actions{display:flex;gap:4px;justify-content:flex-end}
+  .iconBtn{border:0;background:#edf3fb;color:var(--blue);width:30px;height:30px;border-radius:9px;cursor:pointer;font-weight:950}
+  .iconBtn.del{background:#fff0ef;color:var(--danger)}
+  .mobileList{display:none}
+  .mobileItem{border:1px solid var(--line);border-radius:13px;padding:12px;margin-bottom:9px}
+  .mobileTop{display:flex;justify-content:space-between;gap:10px}
+  .mobileDesc{font-weight:850;font-size:13px;line-height:1.35}
+  .mobileValue{font-weight:950;color:var(--blue2);white-space:nowrap}
+  .mobileMeta{font-size:10.5px;color:var(--muted);margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .mobileActions{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}
+  .note{font-size:11px;color:var(--muted);margin-top:8px}
+
+  .modalBg{position:fixed;inset:0;background:rgba(10,24,46,.56);z-index:100;display:none;align-items:flex-end;justify-content:center;padding:14px}
+  .modalBg.open{display:flex}
+  .modal{width:min(600px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:22px;padding:19px;box-shadow:0 22px 65px rgba(0,0,0,.26)}
+  .modalHeader{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+  .modalHeader h3{margin:0;color:var(--blue2);font-size:18px}
+  .close{border:0;background:#eef2f7;width:34px;height:34px;border-radius:999px;font-weight:950;cursor:pointer}
+  .backupBox{background:#f7f9fc;border:1px solid var(--line);border-radius:13px;padding:13px;margin-bottom:13px;font-size:12px;line-height:1.5;color:#536078}
+  .backupBox strong{color:var(--text)}
+  .backupBtns{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .fileLabel{display:block;border:1px solid var(--line);background:#fff;color:var(--blue);border-radius:11px;padding:11px;text-align:center;font-weight:850;cursor:pointer;font-size:12px}
+  .fileLabel input{display:none}
+  .dangerZone{margin-top:18px;padding-top:15px;border-top:1px solid var(--line)}
+  .dangerZone p{font-size:11px;color:var(--muted)}
+
+
+  .cloudLine{display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-top:5px;font-size:10px;font-weight:850}
+  .cloudDot{width:7px;height:7px;border-radius:50%;background:#f3b33d;box-shadow:0 0 0 2px rgba(255,255,255,.16)}
+  .cloudDot.ok{background:#63d69f}.cloudDot.err{background:#ff8a80}
+  .syncRow{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#f7f9fc;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:13px}
+  .syncRow strong{font-size:12px}.syncRow span{font-size:10.5px;color:var(--muted)}
+  .setupNotice{background:#fff8e8;border:1px solid #f2d58c;border-radius:12px;padding:12px;font-size:11px;line-height:1.5;margin-bottom:13px;color:#6b5317}
+  .truckSummary{display:flex;gap:6px;flex-wrap:wrap;margin:-3px 0 11px}
+  .miniStat{font-size:9.5px;font-weight:850;color:#56637a;background:#f3f6fa;border:1px solid #e4eaf2;border-radius:999px;padding:5px 7px}
+  .btnPrimary[disabled],.btnGhost[disabled],.btnSoft[disabled]{opacity:.55;cursor:not-allowed}
+
+  .toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,25px);opacity:0;pointer-events:none;background:#172238;color:#fff;padding:12px 14px;border-radius:11px;font-size:12px;font-weight:850;box-shadow:0 12px 30px rgba(0,0,0,.22);transition:.2s;z-index:200;max-width:min(90vw,480px);text-align:center}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  .toast.error{background:#8f1f19}
+
+  @media(max-width:820px){
+    .app{padding:11px 11px 30px}.header{padding:15px;border-radius:18px}.truckLogo{width:48px;height:39px}.truckLogo svg{width:39px}.brandTitle{font-size:21px}.brandSub{font-size:9px}.periodTop{display:none}
+    .tabs{top:5px}.tab{padding:11px 8px;font-size:12px}.grid2,.truckColumns{grid-template-columns:1fr}.row2{grid-template-columns:1fr}.card{padding:15px}.kpis{grid-template-columns:1fr 1fr}.kpi.total{grid-column:1/-1}.kpi strong{font-size:19px}
+    .filters{align-items:stretch}.filters .field,.qWrap{min-width:100%}.reportActions{width:100%;margin:0}.reportActions button{flex:1}.desktopTable{display:none}.mobileList{display:block}.backupBtns{grid-template-columns:1fr}
+  }
+  @media print{
+    body{background:#fff}.app{max-width:none;padding:0}.header{box-shadow:none;border-radius:0;margin:0 0 10px}.tabs,#view-lancar,.reportActions,.gear,.modalBg,.toast{display:none!important}#view-quinzena{display:block!important}.filterCard{box-shadow:none}.truckColumns{grid-template-columns:1fr 1fr}.card{box-shadow:none}.desktopTable{display:block!important}.mobileList{display:none!important}table{min-width:0}th,td{font-size:9px;padding:6px 5px}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <div class="brand">
+      <div class="truckLogo" aria-hidden="true">
+        <svg viewBox="0 0 64 40"><path d="M3 8h35v21H3V8Zm36 7h11l9 9v5H39V15Zm5 4v6h10l-5-6h-5ZM13 36a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm36 0a5 5 0 1 0 0-10 5 5 0 0 0 0 10ZM0 29h7a7 7 0 0 1 12 0h24a7 7 0 0 1 12 0h7v4h-7a7 7 0 0 1-12 0H19a7 7 0 0 1-12 0H0v-4Z"/></svg>
+      </div>
+      <div><div class="brandTitle">BARROSO</div><div class="brandSub">TRANSPORTE E LOGÍSTICA • CONTROLE DE FRETES</div></div>
+    </div>
+    <div class="headerRight">
+      <div class="periodTop">Quinzena atual<strong id="periodTop">—</strong><div class="cloudLine"><span class="cloudDot" id="cloudDot"></span><span id="cloudStatus">Google Sheets: aguardando</span></div></div>
+      <button class="gear" onclick="openBackup()" aria-label="Backup e dados">⚙</button>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-view="lancar">＋ Lançar</button>
+    <button class="tab" data-view="quinzena">▤ Ver quinzena</button>
+  </nav>
+
+  <section class="view active" id="view-lancar">
+    <div class="grid2">
+      <div class="card">
+        <h2>Novo lançamento</h2>
+        <p class="helper">Ele só preenche e salva. O mês e a quinzena são definidos automaticamente pela data.</p>
+
+        <div class="field">
+          <label>CAMINHÃO</label>
+          <div class="vehiclePicker">
+            <button type="button" class="vehicleBtn active" data-v="OTH9735" onclick="setVehicle('OTH9735')">🚚 OTH9735</button>
+            <button type="button" class="vehicleBtn" data-v="OTH9H55" onclick="setVehicle('OTH9H55')">🚚 OTH9H55</button>
+          </div>
+        </div>
+
+        <div class="row2">
+          <div class="field"><label>DATA</label><input id="date" type="date"></div>
+          <div class="field"><label>VALOR</label><input id="value" inputmode="decimal" placeholder="R$ 0,00"></div>
+        </div>
+
+        <div class="field"><label>TIPO</label><div class="typePicker" id="typePicker"></div></div>
+        <div class="field"><label>CIDADE / DESCRIÇÃO</label><input id="desc" list="descSuggestions" autocomplete="off" placeholder="Ex.: Econômico Pedreira"><datalist id="descSuggestions"></datalist></div>
+        <div class="field"><label>OBSERVAÇÃO <span style="font-weight:500;color:#8a94a6">(opcional)</span></label><textarea id="obs" placeholder="Ex.: 10 toneladas, 1200 volumes..."></textarea></div>
+        <button class="btnPrimary" id="saveBtn" onclick="saveRecord()">SALVAR LANÇAMENTO</button>
+      </div>
+
+      <div>
+        <div class="kpis">
+          <div class="kpi"><span>OTH9735</span><strong id="mainKpi1">R$ 0,00</strong></div>
+          <div class="kpi"><span>OTH9H55</span><strong id="mainKpi2">R$ 0,00</strong></div>
+          <div class="kpi total"><span>Total da quinzena</span><strong id="mainKpiTotal">R$ 0,00</strong></div>
+        </div>
+        <div class="card">
+          <h2>Quinzena atual</h2>
+          <p class="helper" id="mainPeriod">—</p>
+          <div id="recentList"></div>
+          <button class="btnGhost" style="width:100%;margin-top:8px" onclick="openView('quinzena')">VER TODOS OS LANÇAMENTOS</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="view-quinzena">
+    <div class="card filterCard">
+      <div class="filters">
+        <div class="field"><label>COMPETÊNCIA</label><select id="competence" onchange="renderReport()"></select></div>
+        <div class="qWrap"><label>QUINZENA</label><div class="qBtns"><button class="qBtn active" data-q="1" onclick="setQ('1')">01 a 15</button><button class="qBtn" data-q="2" onclick="setQ('2')">16 ao fim</button></div></div>
+        <div class="reportActions"><button class="btnSoft" onclick="goCurrentPeriod()">Hoje</button><button class="btnGhost" onclick="window.print()">Imprimir / PDF</button></div>
+      </div>
+      <div class="kpis" style="margin:15px 0 0">
+        <div class="kpi"><span>OTH9735</span><strong id="reportKpi1">R$ 0,00</strong></div>
+        <div class="kpi"><span>OTH9H55</span><strong id="reportKpi2">R$ 0,00</strong></div>
+        <div class="kpi total"><span>Total geral</span><strong id="reportKpiTotal">R$ 0,00</strong></div>
+      </div>
+    </div>
+    <div class="truckColumns">
+      <div class="card" id="truck1"></div>
+      <div class="card" id="truck2"></div>
+    </div>
+  </section>
+</div>
+
+<div class="modalBg" id="editBg" onclick="bgClose(event,'editBg')">
+  <div class="modal">
+    <div class="modalHeader"><h3>Editar lançamento</h3><button class="close" onclick="closeModal('editBg')">×</button></div>
+    <input type="hidden" id="editId">
+    <div class="field"><label>CAMINHÃO</label><select id="editVehicle"><option>OTH9735</option><option>OTH9H55</option></select></div>
+    <div class="row2"><div class="field"><label>DATA</label><input id="editDate" type="date"></div><div class="field"><label>VALOR</label><input id="editValue" inputmode="decimal"></div></div>
+    <div class="field"><label>TIPO</label><select id="editType"></select></div>
+    <div class="field"><label>CIDADE / DESCRIÇÃO</label><input id="editDesc"></div>
+    <div class="field"><label>OBSERVAÇÃO</label><textarea id="editObs"></textarea></div>
+    <button class="btnPrimary" onclick="saveEdit()">SALVAR ALTERAÇÕES</button>
+  </div>
+</div>
+
+<div class="modalBg" id="backupBg" onclick="bgClose(event,'backupBg')">
+  <div class="modal">
+    <div class="modalHeader"><h3>Google Sheets e dados</h3><button class="close" onclick="closeModal('backupBg')">×</button></div>
+    <div class="syncRow"><div><strong id="syncTitle">Google Sheets</strong><br><span id="syncInfo">Conexão automática</span></div><button class="btnSoft" id="syncBtn" onclick="syncNow()">SINCRONIZAR</button></div>
+    <div class="setupNotice" id="setupNotice">Conexão com o Google Sheets configurada. Os lançamentos feitos neste site são gravados diretamente na base online e ficam disponíveis em qualquer aparelho.</div>
+    <input id="apiUrlInput" type="hidden">
+    <div class="backupBox" style="margin-top:13px"><strong id="recordCount">—</strong><br>O backup abaixo é apenas uma cópia de segurança. A fonte principal dos dados é o Google Sheets.</div>
+    <div class="backupBtns">
+      <button class="btnGhost" onclick="downloadBackup()">BAIXAR BACKUP (.JSON)</button>
+      <button class="btnGhost" onclick="exportCSV()">EXPORTAR TUDO (.CSV)</button>
+      <button class="btnGhost" onclick="downloadCurrentFortnightCSV()">CSV DA QUINZENA ABERTA</button>
+      <button class="btnGhost" onclick="syncNow()">RECARREGAR DO SHEETS</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+const INITIAL_HISTORY=[{"id":"legacy-121","data":"2026-09-04","competencia":"2026-09","quinzena":"1","veiculo":"OTH9735","tipo":"Frete","descricao":"Castanhal diversos","valor":950.0,"observacao":"Importado da planilha antiga (01 a 1508)","origem":"LEGADO"},{"id":"legacy-122","data":"2026-09-04","competencia":"2026-09","quinzena":"1","veiculo":"OTH9735","tipo":"Frete","descricao":"Diversos porto","valor":850.0,"observacao":"Importado da planilha antiga (01 a 1508)","origem":"LEGADO"},{"id":"legacy-123","data":"2026-09-08","competencia":"2026-09","quinzena":"1","veiculo":"OTH9735","tipo":"Frete","descricao":"econômico e lider","valor":850.0,"observacao":"Importado da planilha antiga (01 a 1508)","origem":"LEGADO"},{"id":"legacy-124","data":"2026-09-09","competencia":"2026-09","quinzena":"1","veiculo":"OTH9735","tipo":"Frete","descricao":"castanhal","valor":1000.0,"observacao":"Importado da planilha antiga (01 a 1508)","origem":"LEGADO"},{"id":"legacy-125","data":"2026-09-09","competencia":"2026-09","quinzena":"1","veiculo":"OTH9735","tipo":"Descarga","descricao":"Descarga castanhal","valor":341.8,"observacao":"Importado da planilha antiga (01 a 1508)","origem":"LEGADO"},{"id":"legacy-126","data":"2026-09-09","competencia":"2026-09","quinzena":"1","veiculo":"OTH9735","tipo":"Descarga","descricao":"Descarga econômico pedreira","valor":349.0,"observacao":"Importado da planilha antiga (01 a 1508)","origem":"LEGADO"},{"id":"legacy-127","data":"2026-09-09","competencia":"2026-09","quinzena":"1","veiculo":"OTH9735","tipo":"Descarga","descricao":"Descarga truck atacadão 1200 volumes","valor":760.0,"observacao":"Importado da planilha antiga (01 a 1508)","origem":"LEGADO"},{"id":"legacy-128","data":"2026-09-08","competencia":"2026-09","quinzena":"1","veiculo":"OTH9735","tipo":"Descarga","descricao":"Descarga porto","valor":162.0,"observacao":"Importado da planilha antiga (01 a 1508)","origem":"LEGADO"},{"id":"legacy-129","data":"2026-09-04","competencia":"2026-09","quinzena":"1","veiculo":"OTH9735","tipo":"Descarga","descricao":"Descarga castanhal diversos","valor":170.0,"observacao":"Importado da planilha antiga (01 a 1508)","origem":"LEGADO"},{"id":"legacy-130","data":"2026-09-02","competencia":"2026-09","quinzena":"1","veiculo":"OTH9735","tipo":"Descarga","descricao":"Descarga atacadão","valor":585.0,"observacao":"Importado da planilha antiga (01 a 1508)","origem":"LEGADO"},{"id":"legacy-131","data":"2026-09-03","competencia":"2026-09","quinzena":"1","veiculo":"OTH9H55","tipo":"Frete","descricao":"Frete truck castanhal 10 ton 1200VOL","valor":2000.0,"observacao":"Importado da planilha antiga (01 a 1508)","origem":"LEGADO"},{"id":"legacy-132","data":"2026-09-08","competencia":"2026-09","quinzena":"1","veiculo":"OTH9H55","tipo":"Frete","descricao":"Castanhal diversos","valor":900.0,"observacao":"Importado da planilha antiga (01 a 1508)","origem":"LEGADO"},{"id":"legacy-133","data":"2026-09-08","competencia":"2026-09","quinzena":"1","veiculo":"OTH9H55","tipo":"Frete","descricao":"Carga truck atacadão 10 ton","valor":1300.0,"observacao":"Importado da planilha antiga (01 a 1508)","origem":"LEGADO"},{"id":"legacy-134","data":"2026-09-08","competencia":"2026-09","quinzena":"1","veiculo":"OTH9H55","tipo":"Frete","descricao":"Econômico terra firme","valor":850.0,"observacao":"Importado da planilha antiga (01 a 1508)","origem":"LEGADO"},{"id":"legacy-135","data":"2026-09-10","competencia":"2026-09","quinzena":"1","veiculo":"OTH9H55","tipo":"Frete","descricao":"Fretetruckformosa 13 ton 1462volumes","valor":1400.0,"observacao":"Importado da planilha antiga (01 a 1508)","origem":"LEGADO"},{"id":"legacy-136","data":"2026-09-09","competencia":"2026-09","quinzena":"1","veiculo":"OTH9H55","tipo":"Frete","descricao":"Atacadao","valor":1400.0,"observacao":"Importado da planilha antiga (01 a 1508)","origem":"LEGADO"},{"id":"legacy-137","data":"","competencia":"2026-09","quinzena":"1","veiculo":"OTH9H55","tipo":"Descarga","descricao":"Descarga formosa truck 1462","valor":1023.0,"observacao":"Importado da planilha antiga (01 a 1508)","origem":"LEGADO"},{"id":"legacy-138","data":"2026-09-09","competencia":"2026-09","quinzena":"1","veiculo":"OTH9H55","tipo":"Descarga","descricao":"Descarga atacadao 3/4","valor":487.2,"observacao":"Importado da planilha antiga (01 a 1508)","origem":"LEGADO"},{"id":"legacy-139","data":"2026-09-09","competencia":"2026-09","quinzena":"1","veiculo":"OTH9H55","tipo":"Descarga","descricao":"Descarga econômico guama","valor":426.0,"observacao":"Importado da planilha antiga (01 a 1508)","origem":"LEGADO"},{"id":"legacy-140","data":"2026-09-08","competencia":"2026-09","quinzena":"1","veiculo":"OTH9H55","tipo":"Descarga","descricao":"Descarga santa isabel","valor":280.0,"observacao":"Importado da planilha antiga (01 a 1508)","origem":"LEGADO"},{"id":"legacy-141","data":"2026-09-04","competencia":"2026-09","quinzena":"1","veiculo":"OTH9H55","tipo":"Descarga","descricao":"Descarga truck castanhal","valor":858.0,"observacao":"Importado da planilha antiga (01 a 1508)","origem":"LEGADO"},{"id":"legacy-142","data":"2026-09-03","competencia":"2026-09","quinzena":"1","veiculo":"OTH9H55","tipo":"Descarga","descricao":"Descarga atacadao","valor":630.0,"observacao":"Importado da planilha antiga (01 a 1508)","origem":"LEGADO"},{"id":"legacy-143","data":"2026-08-17","competencia":"2026-08","quinzena":"2","veiculo":"OTH9735","tipo":"Frete","descricao":"Econômico  Pedreira","valor":950.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-144","data":"2026-08-19","competencia":"2026-08","quinzena":"2","veiculo":"OTH9735","tipo":"Frete","descricao":"preço baixo parque verde","valor":1000.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-145","data":"2026-08-20","competencia":"2026-08","quinzena":"2","veiculo":"OTH9735","tipo":"Frete","descricao":"Cametá","valor":2000.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-146","data":"2026-08-24","competencia":"2026-08","quinzena":"2","veiculo":"OTH9735","tipo":"Frete","descricao":"Porto maturu","valor":1000.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-147","data":"2026-08-25","competencia":"2026-08","quinzena":"2","veiculo":"OTH9735","tipo":"Frete","descricao":"Porto diversos","valor":800.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-148","data":"2026-08-26","competencia":"2026-08","quinzena":"2","veiculo":"OTH9735","tipo":"Frete","descricao":"castanhal","valor":1100.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-149","data":"2026-08-27","competencia":"2026-08","quinzena":"2","veiculo":"OTH9735","tipo":"Frete","descricao":"Porto","valor":900.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-150","data":"2026-08-31","competencia":"2026-08","quinzena":"2","veiculo":"OTH9735","tipo":"Frete","descricao":"Diversos marituba e sta Bárbara","valor":900.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-151","data":"2026-08-31","competencia":"2026-08","quinzena":"2","veiculo":"OTH9735","tipo":"Frete","descricao":"Mosqueiro paulista","valor":950.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-152","data":"2026-08-31","competencia":"2026-08","quinzena":"2","veiculo":"OTH9735","tipo":"Frete","descricao":"Atacadao coqueiro","valor":1100.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-153","data":"2026-08-31","competencia":"2026-08","quinzena":"2","veiculo":"OTH9735","tipo":"Descarga","descricao":"Paulista descarga","valor":237.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-154","data":"2026-08-31","competencia":"2026-08","quinzena":"2","veiculo":"OTH9735","tipo":"Descarga","descricao":"Descarga diversos marituba e sta","valor":108.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-155","data":"2026-08-28","competencia":"2026-08","quinzena":"2","veiculo":"OTH9735","tipo":"Descarga","descricao":"Descarga porto","valor":380.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-156","data":"2026-08-26","competencia":"2026-08","quinzena":"2","veiculo":"OTH9735","tipo":"Descarga","descricao":"Descarga castanhal","valor":281.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-157","data":"2026-08-25","competencia":"2026-08","quinzena":"2","veiculo":"OTH9735","tipo":"Descarga","descricao":"Descarga porto leao marajo","valor":180.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-158","data":"2026-08-24","competencia":"2026-08","quinzena":"2","veiculo":"OTH9735","tipo":"Descarga","descricao":"Maturu descarga","valor":330.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-159","data":"","competencia":"2026-08","quinzena":"2","veiculo":"OTH9735","tipo":"Balsa","descricao":"Balsa cametá arapari","valor":310.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-160","data":"","competencia":"2026-08","quinzena":"2","veiculo":"OTH9735","tipo":"Balsa","descricao":"Balsa cametá","valor":340.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-161","data":"2026-08-27","competencia":"2026-08","quinzena":"2","veiculo":"OTH9735","tipo":"Descarga","descricao":"Descarga cametá","valor":698.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-162","data":"2026-08-19","competencia":"2026-08","quinzena":"2","veiculo":"OTH9735","tipo":"Frete","descricao":"Preço baixo parque verde","valor":738.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-163","data":"2026-08-19","competencia":"2026-08","quinzena":"2","veiculo":"OTH9735","tipo":"Frete","descricao":"Econômico pedreira","valor":458.5,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-164","data":"2026-08-17","competencia":"2026-08","quinzena":"2","veiculo":"OTH9H55","tipo":"Frete","descricao":"Econômico terra firme","valor":1000.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-165","data":"2026-08-19","competencia":"2026-08","quinzena":"2","veiculo":"OTH9H55","tipo":"Frete","descricao":"Preço baixo tenone","valor":850.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-166","data":"2026-08-20","competencia":"2026-08","quinzena":"2","veiculo":"OTH9H55","tipo":"Frete","descricao":"Bragança","valor":1900.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-167","data":"2026-08-24","competencia":"2026-08","quinzena":"2","veiculo":"OTH9H55","tipo":"Frete","descricao":"Mateus atalaia","valor":900.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-168","data":"2026-08-25","competencia":"2026-08","quinzena":"2","veiculo":"OTH9H55","tipo":"Frete","descricao":"aba comércio","valor":1100.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-169","data":"2026-08-26","competencia":"2026-08","quinzena":"2","veiculo":"OTH9H55","tipo":"Frete","descricao":"Castanhal","valor":1100.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-170","data":"2026-08-26","competencia":"2026-08","quinzena":"2","veiculo":"OTH9H55","tipo":"Frete","descricao":"concórdia","valor":1600.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-171","data":"2026-08-27","competencia":"2026-08","quinzena":"2","veiculo":"OTH9H55","tipo":"Frete","descricao":"Econômico Pedro Miranda","valor":1000.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-172","data":"2026-09-01","competencia":"2026-09","quinzena":"1","veiculo":"OTH9H55","tipo":"Frete","descricao":"Sendas","valor":1000.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-173","data":"","competencia":"2026-08","quinzena":"2","veiculo":"OTH9H55","tipo":"Frete","descricao":"Frete quinzena passada","valor":850.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-174","data":"2026-08-31","competencia":"2026-08","quinzena":"2","veiculo":"OTH9H55","tipo":"Frete","descricao":"Atacadao castanhal","valor":1300.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-175","data":"","competencia":"2026-08","quinzena":"2","veiculo":"OTH9H55","tipo":"Outro","descricao":"Lançamento sem descrição (legado)","valor":220.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-176","data":"","competencia":"2026-08","quinzena":"2","veiculo":"OTH9H55","tipo":"Frete","descricao":"concórdia","valor":240.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-177","data":"2026-08-31","competencia":"2026-08","quinzena":"2","veiculo":"OTH9H55","tipo":"Descarga","descricao":"Descarga sendas","valor":460.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-178","data":"2026-08-31","competencia":"2026-08","quinzena":"2","veiculo":"OTH9H55","tipo":"Descarga","descricao":"Descarga Econômico pedreira","valor":451.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-179","data":"2026-08-26","competencia":"2026-08","quinzena":"2","veiculo":"OTH9H55","tipo":"Descarga","descricao":"Descarga mateus atalaia","valor":485.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-180","data":"2026-08-25","competencia":"2026-08","quinzena":"2","veiculo":"OTH9H55","tipo":"Descarga","descricao":"Descarga Castanhal","valor":340.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-181","data":"2026-08-24","competencia":"2026-08","quinzena":"2","veiculo":"OTH9H55","tipo":"Descarga","descricao":"Descarga aba comércio","valor":400.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-182","data":"2026-08-21","competencia":"2026-08","quinzena":"2","veiculo":"OTH9H55","tipo":"Descarga","descricao":"Descarga bragança","valor":424.8,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-183","data":"2026-08-20","competencia":"2026-08","quinzena":"2","veiculo":"OTH9H55","tipo":"Descarga","descricao":"Descarga preço baixo tenone","valor":300.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"},{"id":"legacy-184","data":"2026-08-19","competencia":"2026-08","quinzena":"2","veiculo":"OTH9H55","tipo":"Descarga","descricao":"Descarga econômico terra firme","valor":675.0,"observacao":"Importado da planilha antiga (16 a 3108)","origem":"LEGADO"}];
+const API_STORAGE_KEY='barroso_fretes_google_script_url_v1';
+const CACHE_KEY='barroso_fretes_cloud_cache_v1';
+const DEFAULT_API_URL='https://script.google.com/macros/s/AKfycbyQAPYyCVRmSBWk2ZYt4iw5k3Ed7kdKpBrI1GBCM7rIc0Ow_WdtSC3N89lqpLPW3wEN/exec'; // Conexão fixa com o Google Sheets
+const TYPES=['Frete','Descarga','Balsa','Outro'];
+let records=[];
+let selectedVehicle='OTH9735', selectedType='Frete';
+let reportQ='1', reportComp='';
+let apiUrl='';
+let cloudReady=false;
+let syncing=false;
+
+function uid(){return (window.crypto&&crypto.randomUUID)?crypto.randomUUID():('id-'+Date.now()+'-'+Math.random().toString(36).slice(2))}
+function clone(v){return JSON.parse(JSON.stringify(v))}
+function todayISO(){const d=new Date();const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`}
+function periodFromDate(iso){if(!iso)return null;const [y,m,d]=iso.split('-').map(Number);return {competencia:`${y}-${String(m).padStart(2,'0')}`,quinzena:d<=15?'1':'2'}}
+function periodOf(r){const p=periodFromDate(r.data);return p||{competencia:r.competencia,quinzena:String(r.quinzena||'1')}}
+function money(v){return Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
+function parseMoney(v){let s=String(v??'').replace(/R\$/gi,'').replace(/\s/g,'');if(s.includes(',')&&s.includes('.'))s=s.replace(/\./g,'').replace(',','.');else if(s.includes(','))s=s.replace(',','.');return Number(s)}
+function formatMoneyInput(v){const n=parseMoney(v);return Number.isFinite(n)?money(n):v}
+function dateBR(iso){if(!iso)return '—';const [y,m,d]=iso.split('-');return `${d}/${m}/${y}`}
+function compLabel(c){if(!c)return '—';const [y,m]=c.split('-');const a=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];return `${a[Number(m)-1]}/${y}`}
+function fullPeriod(c,q){if(!c)return '—';const [y,m]=c.split('-').map(Number);const months=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];const last=new Date(y,m,0).getDate();return q==='1'?`01 a 15 de ${months[m-1]}/${y}`:`16 a ${last} de ${months[m-1]}/${y}`}
+function escapeHTML(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function currentPeriod(){return periodFromDate(todayISO())}
+function filtered(c,q){return records.filter(r=>{const p=periodOf(r);return p&&p.competencia===c&&String(p.quinzena)===String(q)})}
+function sortRecords(list){return [...list].sort((a,b)=>{const da=a.data||'9999-99-99',db=b.data||'9999-99-99';if(da!==db)return da.localeCompare(db);return String(a.createdAt||a.id).localeCompare(String(b.createdAt||b.id))})}
+function totalFor(list,v){return list.filter(r=>!v||r.veiculo===v).reduce((s,r)=>s+Number(r.valor||0),0)}
+function typeTotal(list,t){return list.filter(r=>r.tipo===t).reduce((s,r)=>s+Number(r.valor||0),0)}
+function cacheRecords(){try{localStorage.setItem(CACHE_KEY,JSON.stringify({records,at:new Date().toISOString()}))}catch(e){}}
+function loadCache(){try{const x=JSON.parse(localStorage.getItem(CACHE_KEY)||'null');if(x&&Array.isArray(x.records)&&x.records.length)return x.records}catch(e){}return clone(INITIAL_HISTORY)}
+function getConfiguredUrl(){const q=new URLSearchParams(location.search).get('api');if(q&&/^https:\/\/script\.google\.com\//.test(q)){localStorage.setItem(API_STORAGE_KEY,q);history.replaceState(null,'',location.pathname+location.hash);return q}if(validApiUrl(DEFAULT_API_URL)){localStorage.setItem(API_STORAGE_KEY,DEFAULT_API_URL);return DEFAULT_API_URL}return localStorage.getItem(API_STORAGE_KEY)||''}
+function validApiUrl(v){return /^https:\/\/script\.google\.com\/macros\/s\/.+\/exec(?:\?.*)?$/.test(String(v||'').trim())}
+function setCloudStatus(kind,text){const d=document.getElementById('cloudDot'),s=document.getElementById('cloudStatus');if(d){d.className='cloudDot'+(kind==='ok'?' ok':kind==='err'?' err':'')}if(s)s.textContent=text;const title=document.getElementById('syncTitle'),info=document.getElementById('syncInfo');if(title)title.textContent=kind==='ok'?'Google Sheets conectado':kind==='err'?'Google Sheets com erro':'Google Sheets';if(info)info.textContent=text}
+function jsonp(action,params={},timeout=12000){return new Promise((resolve,reject)=>{if(!validApiUrl(apiUrl))return reject(new Error('URL do Apps Script não configurada'));const cb='__barroso_cb_'+Date.now()+'_'+Math.random().toString(36).slice(2);const u=new URL(apiUrl);u.searchParams.set('action',action);u.searchParams.set('callback',cb);u.searchParams.set('_',Date.now());Object.entries(params).forEach(([k,v])=>{if(v!==undefined&&v!==null)u.searchParams.set(k,String(v))});const sc=document.createElement('script');let done=false;const clean=()=>{if(done)return;done=true;clearTimeout(timer);try{delete window[cb]}catch(e){window[cb]=undefined}sc.remove()};window[cb]=(data)=>{clean();resolve(data)};sc.onerror=()=>{clean();reject(new Error('Falha ao acessar o Google Apps Script'))};sc.src=u.toString();document.body.appendChild(sc);const timer=setTimeout(()=>{clean();reject(new Error('Tempo de conexão esgotado'))},timeout)})}
+
+async function loadCloud(showToast=false){if(!validApiUrl(apiUrl)){cloudReady=false;setCloudStatus('wait','Google Sheets: não configurado');if(showToast)openBackup();return false}syncing=true;setCloudStatus('wait','Google Sheets: sincronizando…');try{const res=await jsonp('list');if(!res||res.ok!==true||!Array.isArray(res.records))throw new Error(res&&res.error?res.error:'Resposta inválida');records=res.records;cloudReady=true;cacheRecords();refreshAll();setCloudStatus('ok',`Google Sheets: ${records.length} lançamentos`);if(showToast)toast('Dados atualizados pelo Google Sheets.');return true}catch(e){cloudReady=false;setCloudStatus('err','Google Sheets: sem conexão');if(showToast)toast('Não foi possível sincronizar com o Google Sheets.',true);return false}finally{syncing=false}}
+async function syncNow(){if(syncing)return;await loadCloud(true)}
+async function saveApiUrl(){const v=document.getElementById('apiUrlInput').value.trim();if(!validApiUrl(v)){toast('Cole a URL do Web App do Apps Script terminando em /exec.',true);return}apiUrl=v;localStorage.setItem(API_STORAGE_KEY,v);const ok=await loadCloud(false);if(ok){document.getElementById('setupNotice').style.display='none';toast('Google Sheets conectado.');closeModal('backupBg')}else toast('URL salva, mas não consegui acessar o Apps Script.',true)}
+
+function init(){
+  records=loadCache(); apiUrl=getConfiguredUrl();
+  const p=currentPeriod();reportComp=p.competencia;reportQ=p.quinzena;
+  document.getElementById('date').value=todayISO();
+  document.getElementById('value').addEventListener('blur',e=>{if(e.target.value)e.target.value=formatMoneyInput(e.target.value)});
+  document.getElementById('editValue').addEventListener('blur',e=>{if(e.target.value)e.target.value=formatMoneyInput(e.target.value)});
+  document.getElementById('typePicker').innerHTML=TYPES.map((t,i)=>`<button type="button" class="typeBtn ${i===0?'active':''}" data-t="${t}" onclick="setType('${t}')">${t}</button>`).join('');
+  document.getElementById('editType').innerHTML=TYPES.map(t=>`<option>${t}</option>`).join('');
+  document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>openView(b.dataset.view));
+  refreshAll();
+  if(validApiUrl(apiUrl))loadCloud(false); else setCloudStatus('wait','Google Sheets: não configurado');
+}
+function refreshAll(){renderMain();fillCompetences();renderReport();fillSuggestions()}
+function fillSuggestions(){const d=document.getElementById('descSuggestions');if(!d)return;const vals=[...new Set(records.map(r=>String(r.descricao||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR')).slice(0,250);d.innerHTML=vals.map(x=>`<option value="${escapeHTML(x)}"></option>`).join('')}
+function renderMain(){const p=currentPeriod(),list=filtered(p.competencia,p.quinzena);document.getElementById('periodTop').textContent=fullPeriod(p.competencia,p.quinzena);document.getElementById('mainPeriod').textContent=fullPeriod(p.competencia,p.quinzena);document.getElementById('mainKpi1').textContent=money(totalFor(list,'OTH9735'));document.getElementById('mainKpi2').textContent=money(totalFor(list,'OTH9H55'));document.getElementById('mainKpiTotal').textContent=money(totalFor(list));const recent=[...list].sort((a,b)=>((b.data||'').localeCompare(a.data||''))||String(b.createdAt||b.id).localeCompare(String(a.createdAt||a.id))).slice(0,5);document.getElementById('recentList').innerHTML=recent.length?recent.map(r=>`<div class="recentItem"><div><div class="recentDesc">${escapeHTML(r.descricao)}</div><div class="recentMeta"><span>${dateBR(r.data)}</span><span>•</span><span>${r.veiculo}</span><span class="tag">${r.tipo}</span></div></div><div class="recentValue">${money(r.valor)}</div></div>`).join(''):'<div class="empty">Nenhum lançamento nesta quinzena.</div>'}
+function fillCompetences(){const current=currentPeriod().competencia,comps=new Set([current]);records.forEach(r=>{const p=periodOf(r);if(p&&p.competencia)comps.add(p.competencia)});const ordered=[...comps].sort().reverse();if(!ordered.includes(reportComp))reportComp=current;const el=document.getElementById('competence');el.innerHTML=ordered.map(c=>`<option value="${c}">${compLabel(c)}</option>`).join('');el.value=reportComp}
+function renderReport(){const el=document.getElementById('competence');if(el&&el.value)reportComp=el.value;document.querySelectorAll('.qBtn').forEach(b=>b.classList.toggle('active',b.dataset.q===reportQ));const list=sortRecords(filtered(reportComp,reportQ));document.getElementById('reportKpi1').textContent=money(totalFor(list,'OTH9735'));document.getElementById('reportKpi2').textContent=money(totalFor(list,'OTH9H55'));document.getElementById('reportKpiTotal').textContent=money(totalFor(list));renderTruck('OTH9735','truck1',list);renderTruck('OTH9H55','truck2',list)}
+function renderTruck(vehicle,boxId,list){const rows=list.filter(r=>r.veiculo===vehicle);let h=`<div class="truckHead"><h3>🚚 ${vehicle}</h3><div class="truckTotal">${money(totalFor(rows))}</div></div>`;const summary=TYPES.filter(t=>typeTotal(rows,t)>0).map(t=>`<span class="miniStat">${t}: ${money(typeTotal(rows,t))}</span>`).join('');h+=`<div class="truckSummary"><span class="miniStat">${rows.length} lançamento${rows.length===1?'':'s'}</span>${summary}</div>`;if(!rows.length){document.getElementById(boxId).innerHTML=h+'<div class="empty">Nenhum lançamento para este caminhão.</div>';return}h+=`<div class="desktopTable tableWrap"><table><thead><tr><th>DATA</th><th>TIPO</th><th>CIDADE / DESCRIÇÃO</th><th style="text-align:right">VALOR</th><th></th></tr></thead><tbody>`;h+=rows.map(r=>`<tr><td>${dateBR(r.data)}</td><td><span class="tag">${r.tipo}</span></td><td>${escapeHTML(r.descricao)}</td><td class="money">${money(r.valor)}</td><td><div class="actions"><button class="iconBtn" title="Repetir" onclick="repeatRecord('${r.id}')">↻</button><button class="iconBtn" title="Editar" onclick="editRecord('${r.id}')">✎</button><button class="iconBtn del" title="Excluir" onclick="deleteRecord('${r.id}')">×</button></div></td></tr>`).join('');h+='</tbody></table></div>';h+=`<div class="mobileList">${rows.map(r=>`<div class="mobileItem"><div class="mobileTop"><div><div class="mobileDesc">${escapeHTML(r.descricao)}</div><div class="mobileMeta"><span>${dateBR(r.data)}</span><span class="tag">${r.tipo}</span>${r.data?'':'<span>data não informada no histórico</span>'}</div></div><div class="mobileValue">${money(r.valor)}</div></div><div class="mobileActions"><button class="btnSoft" onclick="repeatRecord('${r.id}')">Repetir</button><button class="btnGhost" onclick="editRecord('${r.id}')">Editar</button><button class="btnGhost btnDanger" onclick="deleteRecord('${r.id}')">Excluir</button></div></div>`).join('')}</div>`;document.getElementById(boxId).innerHTML=h}
+function openView(v){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.getElementById('view-'+v).classList.add('active');document.querySelector(`.tab[data-view="${v}"]`).classList.add('active');if(v==='quinzena')renderReport();window.scrollTo({top:0,behavior:'smooth'})}
+function setVehicle(v){selectedVehicle=v;document.querySelectorAll('.vehicleBtn').forEach(b=>b.classList.toggle('active',b.dataset.v===v))}
+function setType(t){selectedType=t;document.querySelectorAll('.typeBtn').forEach(b=>b.classList.toggle('active',b.dataset.t===t))}
+function setQ(q){reportQ=String(q);renderReport()}
+function goCurrentPeriod(){const p=currentPeriod();reportComp=p.competencia;reportQ=p.quinzena;fillCompetences();renderReport()}
+function ensureCloudForWrite(){if(cloudReady&&validApiUrl(apiUrl))return true;toast('Conecte o Google Sheets antes de salvar.',true);openBackup();return false}
+async function createCloud(payload,force=false){return await jsonp('create',{...payload,force:force?'1':'0'})}
+async function saveRecord(){if(!ensureCloudForWrite())return;const data=document.getElementById('date').value,descricao=document.getElementById('desc').value.trim(),valor=parseMoney(document.getElementById('value').value),observacao=document.getElementById('obs').value.trim();if(!data||!descricao||!Number.isFinite(valor)||valor<=0){toast('Preencha data, descrição e um valor maior que zero.',true);return}const p=periodFromDate(data);const payload={id:uid(),data,competencia:p.competencia,quinzena:p.quinzena,veiculo:selectedVehicle,tipo:selectedType,descricao,valor:Math.round(valor*100)/100,observacao,origem:'SITE'};const btn=document.getElementById('saveBtn');btn.disabled=true;btn.textContent='SALVANDO NO GOOGLE SHEETS…';try{let res=await createCloud(payload,false);if(res&&res.duplicate){const yes=confirm(`Possível lançamento duplicado encontrado:
+
+${descricao} — ${money(valor)}
+${dateBR(data)} • ${selectedVehicle}
+
+Deseja salvar mesmo assim?`);if(!yes){toast('Lançamento não duplicado.');return}res=await createCloud(payload,true)}if(!res||res.ok!==true)throw new Error(res&&res.error?res.error:'Erro ao salvar');records.push(res.record||payload);cacheRecords();document.getElementById('desc').value='';document.getElementById('value').value='';document.getElementById('obs').value='';refreshAll();toast(`✓ FRETE SALVO — ${selectedVehicle} — ${money(valor)}`);setTimeout(()=>document.getElementById('desc').focus(),80)}catch(e){cloudReady=false;setCloudStatus('err','Google Sheets: erro ao salvar');toast('Não foi possível salvar no Google Sheets. Nada foi gravado localmente.',true)}finally{btn.disabled=false;btn.textContent='SALVAR LANÇAMENTO'}}
+function repeatRecord(id){const r=records.find(x=>x.id===id);if(!r)return;setVehicle(r.veiculo);setType(r.tipo);document.getElementById('date').value=todayISO();document.getElementById('desc').value=r.descricao;document.getElementById('value').value=money(r.valor);document.getElementById('obs').value=r.observacao||'';openView('lancar');toast('Dados copiados. Confira a data e salve.')}
+function editRecord(id){const r=records.find(x=>x.id===id);if(!r)return;document.getElementById('editId').value=r.id;document.getElementById('editVehicle').value=r.veiculo;document.getElementById('editDate').value=r.data||'';document.getElementById('editValue').value=money(r.valor);document.getElementById('editType').value=r.tipo;document.getElementById('editDesc').value=r.descricao;document.getElementById('editObs').value=r.observacao||'';document.getElementById('editBg').classList.add('open')}
+async function saveEdit(){if(!ensureCloudForWrite())return;const id=document.getElementById('editId').value,r=records.find(x=>x.id===id);if(!r)return;const data=document.getElementById('editDate').value,descricao=document.getElementById('editDesc').value.trim(),valor=parseMoney(document.getElementById('editValue').value);if(!data||!descricao||!Number.isFinite(valor)||valor<=0){toast('Preencha data, descrição e um valor maior que zero.',true);return}const p=periodFromDate(data);const payload={id,veiculo:document.getElementById('editVehicle').value,data,competencia:p.competencia,quinzena:p.quinzena,tipo:document.getElementById('editType').value,descricao,valor:Math.round(valor*100)/100,observacao:document.getElementById('editObs').value.trim()};try{const res=await jsonp('update',payload);if(!res||res.ok!==true)throw new Error();Object.assign(r,res.record||payload);cacheRecords();closeModal('editBg');refreshAll();toast('Lançamento atualizado no Google Sheets.')}catch(e){toast('Não foi possível atualizar no Google Sheets.',true)}}
+async function deleteRecord(id){if(!ensureCloudForWrite())return;const r=records.find(x=>x.id===id);if(!r)return;if(!confirm(`Excluir este lançamento?
+
+${r.descricao} — ${money(r.valor)}`))return;try{const res=await jsonp('delete',{id});if(!res||res.ok!==true)throw new Error();records=records.filter(x=>x.id!==id);cacheRecords();refreshAll();toast('Lançamento excluído do Google Sheets.')}catch(e){toast('Não foi possível excluir no Google Sheets.',true)}}
+function openBackup(){document.getElementById('recordCount').textContent=`${records.length} lançamentos carregados`;document.getElementById('apiUrlInput').value=apiUrl||'';document.getElementById('setupNotice').style.display=cloudReady?'none':'block';document.getElementById('backupBg').classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+function bgClose(e,id){if(e.target.id===id)closeModal(id)}
+function download(name,text,type){const b=new Blob([text],{type}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),500)}
+function downloadBackup(){download(`backup-fretes-barroso-${todayISO()}.json`,JSON.stringify({version:5,source:'Google Sheets',exportedAt:new Date().toISOString(),records},null,2),'application/json;charset=utf-8');toast('Backup baixado.')}
+function toCSV(list){const cols=['Data','Competência','Quinzena','Veículo','Tipo','Cidade / Descrição','Valor','Observação'],q=v=>'\"'+String(v??'').replace(/\"/g,'\"\"')+'\"',lines=[cols.map(q).join(';')];sortRecords(list).forEach(r=>{const p=periodOf(r);lines.push([dateBR(r.data),compLabel(p.competencia),p.quinzena==='1'?'01 a 15':'16 ao fim',r.veiculo,r.tipo,r.descricao,Number(r.valor).toFixed(2).replace('.',','),r.observacao||''].map(q).join(';'))});return '\ufeff'+lines.join('\r\n')}
+function exportCSV(){download(`fretes-barroso-${todayISO()}.csv`,toCSV(records),'text/csv;charset=utf-8');toast('CSV exportado.')}
+function downloadCurrentFortnightCSV(){download(`fretes-${reportComp}-Q${reportQ}.csv`,toCSV(filtered(reportComp,reportQ)),'text/csv;charset=utf-8');toast('CSV da quinzena exportado.')}
+function toast(msg,error=false){const t=document.getElementById('toast');t.textContent=msg;t.classList.toggle('error',!!error);t.classList.add('show');clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.remove('show'),3200)}
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
