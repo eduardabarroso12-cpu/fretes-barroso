@@ -59,8 +59,12 @@
   .kpi{background:#fff;border:1px solid var(--line);border-radius:15px;padding:15px;box-shadow:var(--shadow)}
   .kpi span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.45px;color:var(--muted);font-weight:900}
   .kpi strong{display:block;font-size:21px;color:var(--blue2);margin-top:6px}
+  .kpiSub{display:block;margin-top:7px;padding-top:7px;border-top:1px solid #e8edf4;font-size:9.5px;line-height:1.25;color:var(--muted);font-weight:800;text-transform:none;letter-spacing:0}
+  .kpiSub b{color:var(--blue2);font-weight:950}
   .kpi.total{background:var(--blue);border-color:var(--blue)}
   .kpi.total span,.kpi.total strong{color:#fff}
+  .kpi.total .kpiSub{border-top-color:rgba(255,255,255,.22);color:rgba(255,255,255,.82)}
+  .kpi.total .kpiSub b{color:#fff}
   .recentItem{padding:11px 0;border-bottom:1px solid #edf1f6;display:flex;justify-content:space-between;gap:12px}
   .recentItem:last-child{border-bottom:0}
   .recentDesc{font-size:13px;font-weight:850;line-height:1.3}
@@ -185,9 +189,9 @@
 
       <div>
         <div class="kpis">
-          <div class="kpi"><span>OTH9735</span><strong id="mainKpi1">R$ 0,00</strong></div>
-          <div class="kpi"><span>OTH9H55</span><strong id="mainKpi2">R$ 0,00</strong></div>
-          <div class="kpi total"><span>Faturamento da quinzena</span><strong id="mainKpiTotal">R$ 0,00</strong></div>
+          <div class="kpi"><span>OTH9735</span><strong id="mainKpi1">R$ 0,00</strong><small class="kpiSub">Fretes + descargas: <b id="mainKpi1All">R$ 0,00</b></small></div>
+          <div class="kpi"><span>OTH9H55</span><strong id="mainKpi2">R$ 0,00</strong><small class="kpiSub">Fretes + descargas: <b id="mainKpi2All">R$ 0,00</b></small></div>
+          <div class="kpi total"><span>Faturamento da quinzena</span><strong id="mainKpiTotal">R$ 0,00</strong><small class="kpiSub">Fretes + descargas: <b id="mainKpiTotalAll">R$ 0,00</b></small></div>
         </div>
         <div class="card">
           <h2>Quinzena atual</h2>
@@ -207,9 +211,9 @@
         <div class="reportActions"><button class="btnSoft" onclick="goCurrentPeriod()">Hoje</button><button class="btnGhost" onclick="window.print()">Imprimir / PDF</button></div>
       </div>
       <div class="kpis" style="margin:15px 0 0">
-        <div class="kpi"><span>OTH9735</span><strong id="reportKpi1">R$ 0,00</strong></div>
-        <div class="kpi"><span>OTH9H55</span><strong id="reportKpi2">R$ 0,00</strong></div>
-        <div class="kpi total"><span>Faturamento da quinzena</span><strong id="reportKpiTotal">R$ 0,00</strong></div>
+        <div class="kpi"><span>OTH9735</span><strong id="reportKpi1">R$ 0,00</strong><small class="kpiSub">Fretes + descargas: <b id="reportKpi1All">R$ 0,00</b></small></div>
+        <div class="kpi"><span>OTH9H55</span><strong id="reportKpi2">R$ 0,00</strong><small class="kpiSub">Fretes + descargas: <b id="reportKpi2All">R$ 0,00</b></small></div>
+        <div class="kpi total"><span>Faturamento da quinzena</span><strong id="reportKpiTotal">R$ 0,00</strong><small class="kpiSub">Fretes + descargas: <b id="reportKpiTotalAll">R$ 0,00</b></small></div>
       </div>
     </div>
     <div class="truckColumns">
@@ -252,9 +256,9 @@
 <script>
 const INITIAL_HISTORY=[];
 const API_STORAGE_KEY='barroso_fretes_google_script_url_v1';
-const CACHE_KEY='barroso_fretes_cloud_cache_v1';
-const PENDING_KEY='barroso_fretes_pending_queue_v1';
-const PENDING_BACKUP_KEY='barroso_fretes_pending_queue_backup_v1';
+const CACHE_KEY='barroso_fretes_cloud_cache_cleanbase_v2';
+const PENDING_KEY='barroso_fretes_pending_queue_cleanbase_v2';
+const PENDING_BACKUP_KEY='barroso_fretes_pending_queue_backup_cleanbase_v2';
 const DEFAULT_API_URL='https://script.google.com/macros/s/AKfycbwLVkQc3e50gLBFRzpnwe4e0Iv_ZwQBc1iCiOzqQW5QmFGZSewlRWLVF4mPLBPGyxnm/exec'; // Conexão fixa com o Google Sheets
 const TYPES=['Frete','Descarga','Balsa','Outro'];
 let records=[];
@@ -313,6 +317,7 @@ function filtered(c,q){return records.filter(r=>{const p=periodOf(r);return p&&p
 function sortRecords(list){return [...list].sort((a,b)=>{const da=a.data||'9999-99-99',db=b.data||'9999-99-99';if(da!==db)return da.localeCompare(db);return String(a.createdAt||a.id).localeCompare(String(b.createdAt||b.id))})}
 function totalFor(list,v){return list.filter(r=>!v||r.veiculo===v).reduce((s,r)=>s+Number(r.valor||0),0)}
 function freightTotal(list,v){return list.filter(r=>(!v||r.veiculo===v)&&r.tipo==='Frete').reduce((s,r)=>s+Number(r.valor||0),0)}
+function freightPlusUnloadTotal(list,v){return list.filter(r=>(!v||r.veiculo===v)&&(r.tipo==='Frete'||r.tipo==='Descarga')).reduce((s,r)=>s+Number(r.valor||0),0)}
 function typeTotal(list,t){return list.filter(r=>r.tipo===t).reduce((s,r)=>s+Number(r.valor||0),0)}
 function cacheRecords(){try{localStorage.setItem(CACHE_KEY,JSON.stringify({records,at:new Date().toISOString()}))}catch(e){}}
 function loadCache(){try{const x=JSON.parse(localStorage.getItem(CACHE_KEY)||'null');if(x&&Array.isArray(x.records))return x.records}catch(e){}return []}
@@ -363,9 +368,9 @@ function init(){
   setInterval(()=>{if(loadPending().length&&!syncing)syncPendingQueue(false)},30000);
 }
 function refreshAll(){renderMain();fillCompetences();renderReport()}
-function renderMain(){const p=currentPeriod(),list=filtered(p.competencia,p.quinzena);document.getElementById('periodTop').textContent=fullPeriod(p.competencia,p.quinzena);document.getElementById('mainPeriod').textContent=fullPeriod(p.competencia,p.quinzena);document.getElementById('mainKpi1').textContent=money(freightTotal(list,'OTH9735'));document.getElementById('mainKpi2').textContent=money(freightTotal(list,'OTH9H55'));document.getElementById('mainKpiTotal').textContent=money(freightTotal(list));const recent=[...list].sort((a,b)=>((b.data||'').localeCompare(a.data||''))||String(b.createdAt||b.id).localeCompare(String(a.createdAt||a.id))).slice(0,5);document.getElementById('recentList').innerHTML=recent.length?recent.map(r=>`<div class="recentItem"><div><div class="recentDesc">${escapeHTML(r.descricao)}</div><div class="recentMeta"><span>${dateBR(r.data)}</span><span>•</span><span>${r.veiculo}</span><span class="tag">${r.tipo}</span>${r._pending?'<span class="tag">PENDENTE</span>':''}</div></div><div class="recentValue">${money(r.valor)}</div></div>`).join(''):'<div class="empty">Nenhum lançamento nesta quinzena.</div>'}
+function renderMain(){const p=currentPeriod(),list=filtered(p.competencia,p.quinzena);document.getElementById('periodTop').textContent=fullPeriod(p.competencia,p.quinzena);document.getElementById('mainPeriod').textContent=fullPeriod(p.competencia,p.quinzena);document.getElementById('mainKpi1').textContent=money(freightTotal(list,'OTH9735'));document.getElementById('mainKpi2').textContent=money(freightTotal(list,'OTH9H55'));document.getElementById('mainKpiTotal').textContent=money(freightTotal(list));document.getElementById('mainKpi1All').textContent=money(freightPlusUnloadTotal(list,'OTH9735'));document.getElementById('mainKpi2All').textContent=money(freightPlusUnloadTotal(list,'OTH9H55'));document.getElementById('mainKpiTotalAll').textContent=money(freightPlusUnloadTotal(list));const recent=[...list].sort((a,b)=>((b.data||'').localeCompare(a.data||''))||String(b.createdAt||b.id).localeCompare(String(a.createdAt||a.id))).slice(0,5);document.getElementById('recentList').innerHTML=recent.length?recent.map(r=>`<div class="recentItem"><div><div class="recentDesc">${escapeHTML(r.descricao)}</div><div class="recentMeta"><span>${dateBR(r.data)}</span><span>•</span><span>${r.veiculo}</span><span class="tag">${r.tipo}</span>${r._pending?'<span class="tag">PENDENTE</span>':''}</div></div><div class="recentValue">${money(r.valor)}</div></div>`).join(''):'<div class="empty">Nenhum lançamento nesta quinzena.</div>'}
 function fillCompetences(){const current=currentPeriod().competencia,comps=new Set([current]);records.forEach(r=>{const p=periodOf(r);if(p&&p.competencia)comps.add(p.competencia)});const ordered=[...comps].sort().reverse();if(!ordered.includes(reportComp))reportComp=current;const el=document.getElementById('competence');el.innerHTML=ordered.map(c=>`<option value="${c}">${compLabel(c)}</option>`).join('');el.value=reportComp}
-function renderReport(){const el=document.getElementById('competence');if(el&&el.value)reportComp=el.value;document.querySelectorAll('.qBtn').forEach(b=>b.classList.toggle('active',b.dataset.q===reportQ));const list=sortRecords(filtered(reportComp,reportQ));document.getElementById('reportKpi1').textContent=money(freightTotal(list,'OTH9735'));document.getElementById('reportKpi2').textContent=money(freightTotal(list,'OTH9H55'));document.getElementById('reportKpiTotal').textContent=money(freightTotal(list));renderTruck('OTH9735','truck1',list);renderTruck('OTH9H55','truck2',list)}
+function renderReport(){const el=document.getElementById('competence');if(el&&el.value)reportComp=el.value;document.querySelectorAll('.qBtn').forEach(b=>b.classList.toggle('active',b.dataset.q===reportQ));const list=sortRecords(filtered(reportComp,reportQ));document.getElementById('reportKpi1').textContent=money(freightTotal(list,'OTH9735'));document.getElementById('reportKpi2').textContent=money(freightTotal(list,'OTH9H55'));document.getElementById('reportKpiTotal').textContent=money(freightTotal(list));document.getElementById('reportKpi1All').textContent=money(freightPlusUnloadTotal(list,'OTH9735'));document.getElementById('reportKpi2All').textContent=money(freightPlusUnloadTotal(list,'OTH9H55'));document.getElementById('reportKpiTotalAll').textContent=money(freightPlusUnloadTotal(list));renderTruck('OTH9735','truck1',list);renderTruck('OTH9H55','truck2',list)}
 function renderTruck(vehicle,boxId,list){const rows=list.filter(r=>r.veiculo===vehicle);let h=`<div class="truckHead"><h3>🚚 ${vehicle}</h3><div class="truckTotal" title="Faturamento dos fretes">${money(freightTotal(rows))}</div></div>`;const summary=TYPES.filter(t=>typeTotal(rows,t)>0).map(t=>`<span class="miniStat">${t}: ${money(typeTotal(rows,t))}</span>`).join('');h+=`<div class="truckSummary"><span class="miniStat">${rows.length} lançamento${rows.length===1?'':'s'}</span>${summary}</div>`;if(!rows.length){document.getElementById(boxId).innerHTML=h+'<div class="empty">Nenhum lançamento para este caminhão.</div>';return}h+=`<div class="desktopTable tableWrap"><table><thead><tr><th>DATA</th><th>TIPO</th><th>CIDADE / DESCRIÇÃO</th><th style="text-align:right">VALOR</th><th></th></tr></thead><tbody>`;h+=rows.map(r=>`<tr><td>${dateBR(r.data)}</td><td><span class="tag">${r.tipo}</span></td><td>${escapeHTML(r.descricao)}${r._pending?' <span class="tag">PENDENTE</span>':''}</td><td class="money">${money(r.valor)}</td><td><div class="actions"><button class="iconBtn" title="Repetir" onclick="repeatRecord('${r.id}')">↻</button><button class="iconBtn" title="Editar" onclick="editRecord('${r.id}')">✎</button><button class="iconBtn del" title="Excluir" onclick="deleteRecord('${r.id}')">×</button></div></td></tr>`).join('');h+='</tbody></table></div>';h+=`<div class="mobileList">${rows.map(r=>`<div class="mobileItem"><div class="mobileTop"><div><div class="mobileDesc">${escapeHTML(r.descricao)}</div><div class="mobileMeta"><span>${dateBR(r.data)}</span><span class="tag">${r.tipo}</span>${r._pending?'<span class="tag">PENDENTE</span>':''}${r.data?'':'<span>data não informada no histórico</span>'}</div></div><div class="mobileValue">${money(r.valor)}</div></div><div class="mobileActions"><button class="btnSoft" onclick="repeatRecord('${r.id}')">Repetir</button><button class="btnGhost" onclick="editRecord('${r.id}')">Editar</button><button class="btnGhost btnDanger" onclick="deleteRecord('${r.id}')">Excluir</button></div></div>`).join('')}</div>`;document.getElementById(boxId).innerHTML=h}
 function openView(v){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.getElementById('view-'+v).classList.add('active');document.querySelector(`.tab[data-view="${v}"]`).classList.add('active');if(v==='quinzena')renderReport();window.scrollTo({top:0,behavior:'smooth'})}
 function setVehicle(v){selectedVehicle=v;document.querySelectorAll('.vehicleBtn').forEach(b=>b.classList.toggle('active',b.dataset.v===v))}
