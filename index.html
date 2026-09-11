@@ -314,7 +314,7 @@ function fullPeriod(c,q){if(!c)return '—';const [y,m]=c.split('-').map(Number)
 function escapeHTML(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 function currentPeriod(){return periodFromDate(todayISO())}
 function filtered(c,q){return records.filter(r=>{const p=periodOf(r);return p&&p.competencia===c&&String(p.quinzena)===String(q)})}
-function sortRecords(list){return [...list].sort((a,b)=>{const da=a.data||'9999-99-99',db=b.data||'9999-99-99';if(da!==db)return da.localeCompare(db);return String(a.createdAt||a.id).localeCompare(String(b.createdAt||b.id))})}
+function sortRecords(list){const typeOrder={Frete:0,Descarga:1,Balsa:2,Outro:3};return [...list].sort((a,b)=>{const ta=typeOrder[a.tipo]??99,tb=typeOrder[b.tipo]??99;if(ta!==tb)return ta-tb;const da=a.data||'9999-99-99',db=b.data||'9999-99-99';if(da!==db)return da.localeCompare(db);return String(a.createdAt||a.id).localeCompare(String(b.createdAt||b.id))})}
 function totalFor(list,v){return list.filter(r=>!v||r.veiculo===v).reduce((s,r)=>s+Number(r.valor||0),0)}
 function freightTotal(list,v){return list.filter(r=>(!v||r.veiculo===v)&&r.tipo==='Frete').reduce((s,r)=>s+Number(r.valor||0),0)}
 function freightPlusUnloadTotal(list,v){return list.filter(r=>(!v||r.veiculo===v)&&(r.tipo==='Frete'||r.tipo==='Descarga')).reduce((s,r)=>s+Number(r.valor||0),0)}
